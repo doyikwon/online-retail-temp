@@ -1,0 +1,283 @@
+{
+  "kpis": {
+    "total_revenue": 10644560.42,
+    "total_orders": 25900,
+    "total_customers": 4372,
+    "total_items": 5660981,
+    "avg_order_value": 513.54,
+    "cancel_rate": 19.97
+  },
+  "monthly_data": {
+    "labels": [
+      "2010-12",
+      "2011-01",
+      "2011-02",
+      "2011-03",
+      "2011-04",
+      "2011-05",
+      "2011-06",
+      "2011-07",
+      "2011-08",
+      "2011-09",
+      "2011-10",
+      "2011-11",
+      "2011-12"
+    ],
+    "revenue": [
+      823746.14,
+      691364.56,
+      523631.89,
+      717639.36,
+      537808.62,
+      770536.02,
+      761739.9,
+      719221.19,
+      737014.26,
+      1058590.17,
+      1154979.3,
+      1509496.33,
+      638792.68
+    ],
+    "orders": [
+      1629,
+      1120,
+      1126,
+      1531,
+      1318,
+      1731,
+      1576,
+      1540,
+      1409,
+      1896,
+      2129,
+      2884,
+      839
+    ]
+  },
+  "country_data": {
+    "labels": [
+      "United Kingdom",
+      "Netherlands",
+      "EIRE",
+      "Germany",
+      "France",
+      "Australia",
+      "Spain",
+      "Switzerland",
+      "Belgium",
+      "Sweden",
+      "Others"
+    ],
+    "values": [
+      9003097.96,
+      285446.34,
+      283453.96,
+      228867.14,
+      209715.11,
+      138521.31,
+      61577.11,
+      57089.9,
+      41196.34,
+      38378.33,
+      297216.92
+    ]
+  },
+  "customer_data": {
+    "labels": [
+      "14646",
+      "18102",
+      "17450",
+      "16446",
+      "14911",
+      "12415",
+      "14156",
+      "17511",
+      "16029",
+      "12346"
+    ],
+    "values": [
+      280206.02,
+      259657.3,
+      194550.79,
+      168472.5,
+      143825.06,
+      124914.53,
+      117379.63,
+      91062.38,
+      81024.84,
+      77183.6
+    ]
+  },
+  "product_data": {
+    "labels": [
+      "PAPER CRAFT , LITTLE BIRDIE",
+      "MEDIUM CERAMIC TOP STORAGE JAR",
+      "WORLD WAR 2 GLIDERS ASSTD DESIGNS",
+      "JUMBO BAG RED RETROSPOT",
+      "WHITE HANGING HEART T-LIGHT HOLDER",
+      "POPCORN HOLDER",
+      "ASSORTED COLOUR BIRD ORNAMENT",
+      "PACK OF 72 RETROSPOT CAKE CASES",
+      "RABBIT NIGHT LIGHT",
+      "MINI PAINT SET VINTAGE "
+    ],
+    "values": [
+      80995,
+      78033,
+      55047,
+      48478,
+      37895,
+      36761,
+      36461,
+      36419,
+      30788,
+      26633
+    ]
+  },
+  "day_data": {
+    "labels": [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday"
+    ],
+    "values": [
+      1779575.04,
+      2178632.61,
+      1851147.81,
+      2203161.24,
+      1818216.11,
+      0.0,
+      813827.61
+    ]
+  },
+  "hour_data": {
+    "labels": [
+      "00:00",
+      "01:00",
+      "02:00",
+      "03:00",
+      "04:00",
+      "05:00",
+      "06:00",
+      "07:00",
+      "08:00",
+      "09:00",
+      "10:00",
+      "11:00",
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00",
+      "17:00",
+      "18:00",
+      "19:00",
+      "20:00",
+      "21:00",
+      "22:00",
+      "23:00"
+    ],
+    "values": [
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      4.25,
+      31059.21,
+      283868.52,
+      990267.82,
+      1446742.7,
+      1239954.44,
+      1444245.88,
+      1265736.3,
+      1159688.25,
+      1352972.18,
+      754006.56,
+      461603.49,
+      144813.05,
+      50665.01,
+      18932.76,
+      0.0,
+      0.0,
+      0.0
+    ]
+  },
+  "cancel_product_data": {
+    "labels": [
+      "PAPER CRAFT , LITTLE BIRDIE",
+      "MEDIUM CERAMIC TOP STORAGE JAR",
+      "printing smudges/thrown away",
+      "Unsaleable, destroyed.",
+      "check",
+      "?",
+      "ROTATING SILVER ANGELS T-LIGHT HLDR",
+      "Printing smudges/thrown away",
+      "Damaged",
+      "throw away"
+    ],
+    "values": [
+      80995,
+      74494,
+      19200,
+      15644,
+      13247,
+      9496,
+      9376,
+      9058,
+      7540,
+      5368
+    ]
+  },
+  "keyword_data": {
+    "labels": [
+      "SET",
+      "PINK",
+      "HEART",
+      "BLUE",
+      "VINTAGE",
+      "RED",
+      "GLASS",
+      "BAG",
+      "CHRISTMAS",
+      "WHITE",
+      "BOX",
+      "DESIGN",
+      "FLOWER",
+      "HOLDER",
+      "LIGHT",
+      "SMALL",
+      "METAL",
+      "GREEN",
+      "LARGE",
+      "NECKLACE"
+    ],
+    "values": [
+      390,
+      327,
+      239,
+      232,
+      220,
+      205,
+      173,
+      171,
+      157,
+      149,
+      141,
+      129,
+      119,
+      118,
+      115,
+      115,
+      112,
+      107,
+      106,
+      106
+    ]
+  }
+}

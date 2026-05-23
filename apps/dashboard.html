@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>온라인 리테일 데이터 분석 대시보드</title>
+    <!-- Google Fonts: Outfit & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            /* 테마 색상 (Sleek Dark Mode 기준) */
+            --bg-gradient-start: #0f172a;
+            --bg-gradient-end: #020617;
+            --card-bg: rgba(30, 41, 59, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --card-hover-border: rgba(99, 102, 241, 0.4);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --primary: #6366f1;       /* Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --secondary: #10b981;     /* Emerald */
+            --secondary-glow: rgba(16, 185, 129, 0.15);
+            --accent: #f59e0b;        /* Amber */
+            --danger: #ef4444;        /* Rose */
+            --danger-glow: rgba(239, 68, 68, 0.15);
+            --purple: #8b5cf6;
+            --cyan: #06b6d4;
+            --sidebar-width: 260px;
+            --transition-speed: 0.3s;
+        }
+
+        .light-theme {
+            --bg-gradient-start: #f8fafc;
+            --bg-gradient-end: #e2e8f0;
+            --card-bg: rgba(255, 255, 255, 0.75);
+            --card-border: rgba(0, 0, 0, 0.06);
+            --card-hover-border: rgba(99, 102, 241, 0.5);
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.1);
+            --secondary: #059669;
+            --secondary-glow: rgba(5, 150, 105, 0.1);
+            --accent: #d97706;
+            --danger: #dc2626;
+            --danger-glow: rgba(220, 38, 38, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            min-height: 100vh;
+            color: var(--text-primary);
+            display: flex;
+            overflow-x: hidden;
+            transition: background var(--transition-speed) ease, color var(--transition-speed) ease;
+        }
+
+        /* 사이드바 스타일 */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .brand-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .brand-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+
+        .nav-item {
+            width: 100%;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: var(--text-primary);
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--primary);
+            padding-left: 12px;
+        }
+
+        .nav-link i {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+
+        .theme-toggle-container {
+            margin-top: auto;
+            border-top: 1px solid var(--card-border);
+            padding-top: 20px;
+        }
+
+        .theme-toggle-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-glow);
+        }
+
+        /* 메인 콘텐츠 영역 */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex-grow: 1;
+            padding: 40px;
+            max-width: 1600px;
+            width: calc(100% - var(--sidebar-width));
+        }
+
+        /* 헤더 스타일 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .header-title h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 6px;
+        }
+
+        .header-title p {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .date-badge {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* KPI 카드 그리드 */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--card-hover-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--card-accent, var(--primary));
+        }
+
+        .kpi-info h3 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 6px;
+        }
+
+        .kpi-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .kpi-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--icon-bg, var(--primary-glow));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--icon-color, var(--primary));
+            font-size: 20px;
+        }
+
+        /* 탭별 대시보드 뷰 */
+        .tab-view {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .tab-view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 대시보드 레이아웃 그리드 */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+
+        .col-12 { grid-column: span 12; }
+        .col-8 { grid-column: span 8; }
+        .col-6 { grid-column: span 6; }
+        .col-4 { grid-column: span 4; }
+
+        @media (max-width: 1200px) {
+            .col-8, .col-6, .col-4 {
+                grid-column: span 12;
+            }
+        }
+
+        /* 카드 컴포넌트 */
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: border-color var(--transition-speed);
+        }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            color: var(--primary);
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 340px;
+        }
+
+        /* 키워드 클라우드 배지 그리드 */
+        .keyword-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            padding: 20px;
+        }
+
+        .keyword-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            cursor: default;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .keyword-badge:hover {
+            transform: scale(1.08);
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        /* 상관관계 표 스타일 */
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .matrix-table th, .matrix-table td {
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            border: 1px solid var(--card-border);
+        }
+
+        .matrix-table th {
+            font-weight: 600;
+            background: rgba(15, 23, 42, 0.2);
+            color: var(--text-secondary);
+        }
+
+        .matrix-cell {
+            font-weight: 700;
+            color: white;
+            transition: all 0.2s ease;
+        }
+
+        /* 상관성 정도에 따른 색상 정의 */
+        .cell-high { background-color: rgba(99, 102, 241, 0.85); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .cell-med-high { background-color: rgba(99, 102, 241, 0.55); }
+        .cell-neutral { background-color: rgba(30, 41, 59, 0.3); color: var(--text-secondary); }
+        .cell-neg-low { background-color: rgba(239, 68, 68, 0.15); color: var(--danger); }
+        .cell-neg-high { background-color: rgba(239, 68, 68, 0.6); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+
+        .matrix-cell:hover {
+            transform: scale(1.05);
+            box-shadow: inset 0 0 0 2px var(--primary);
+        }
+
+        /* 반응형 디자인 보정 */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--card-border);
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 사이드바 네비게이션 -->
+    <div class="sidebar">
+        <div class="brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+            <div class="brand-title">Retail Analytics</div>
+        </div>
+        
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a class="nav-link active" onclick="switchTab('overview')">
+                    <i class="fa-solid fa-house"></i>
+                    종합 대시보드
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="switchTab('customer-product')">
+                    <i class="fa-solid fa-box-open"></i>
+                    고객 & 상품 분석
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="switchTab('time-analysis')">
+                    <i class="fa-solid fa-clock"></i>
+                    시간대별 분석
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="switchTab('keyword-analysis')">
+                    <i class="fa-solid fa-tags"></i>
+                    핵심 키워드 & 상관관계
+                </a>
+            </li>
+        </ul>
+
+        <div class="theme-toggle-container">
+            <button class="theme-toggle-btn" onclick="toggleTheme()">
+                <i class="fa-solid fa-moon" id="theme-icon"></i>
+                <span id="theme-text">라이트 모드</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 메인 콘텐츠 영역 -->
+    <div class="main-content">
+        <!-- 헤더 -->
+        <div class="header">
+            <div class="header-title">
+                <h1>Online Retail Business Dashboard</h1>
+                <p>영국 글로벌 온라인 소매업 주문 트랜잭션 데이터 요약 분석 리포트</p>
+            </div>
+            <div class="date-badge">
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>2010년 12월 ~ 2011년 12월</span>
+            </div>
+        </div>
+
+        <!-- KPI 카드 그리드 -->
+        <div class="kpi-grid">
+            <div class="kpi-card" style="--card-accent: var(--primary);">
+                <div class="kpi-info">
+                    <h3>총 매출액</h3>
+                    <div class="kpi-value" id="kpi-revenue">$0</div>
+                    <div class="kpi-desc">환불/취소 금액 제외 실매출</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="--icon-bg: var(--primary-glow); --icon-color: var(--primary);">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--secondary);">
+                <div class="kpi-info">
+                    <h3>총 주문 건수</h3>
+                    <div class="kpi-value" id="kpi-orders">0</div>
+                    <div class="kpi-desc">누적 송장(InvoiceNo) 수</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="--icon-bg: var(--secondary-glow); --icon-color: var(--secondary);">
+                    <i class="fa-solid fa-receipt"></i>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--purple);">
+                <div class="kpi-info">
+                    <h3>총 고객 수</h3>
+                    <div class="kpi-value" id="kpi-customers">0</div>
+                    <div class="kpi-desc">고유 Customer ID 기준</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="--icon-bg: rgba(139, 92, 246, 0.15); --icon-color: var(--purple);">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--cyan);">
+                <div class="kpi-info">
+                    <h3>평균 주문 금액</h3>
+                    <div class="kpi-value" id="kpi-aov">$0</div>
+                    <div class="kpi-desc">건당 구매 가치 (AOV)</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="--icon-bg: rgba(6, 182, 212, 0.15); --icon-color: var(--cyan);">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+            </div>
+
+            <div class="kpi-card" style="--card-accent: var(--danger);">
+                <div class="kpi-info">
+                    <h3>주문 취소율</h3>
+                    <div class="kpi-value" id="kpi-cancel">0%</div>
+                    <div class="kpi-desc">취소 주문 / 전체 주문 비율</div>
+                </div>
+                <div class="kpi-icon-wrapper" style="--icon-bg: var(--danger-glow); --icon-color: var(--danger);">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 1: 종합 대시보드 (Overview) -->
+        <div id="overview" class="tab-view active">
+            <div class="dashboard-grid">
+                <div class="col-8 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-chart-area"></i>월별 매출 및 주문 건수 추이</div>
+                            <div class="card-subtitle">시간 경과에 따른 매출(막대)과 거래량(꺾은선)의 복합 트렌드</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="col-4 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-globe"></i>국가별 매출 상위 비중</div>
+                            <div class="card-subtitle">영국(UK) 및 주요 글로벌 시장별 매출 점유율</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="countryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 2: 고객 & 상품 분석 (Customer-Product) -->
+        <div id="customer-product" class="tab-view">
+            <div class="dashboard-grid">
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-crown"></i>매출 기여도 상위 10대 VIP 고객</div>
+                            <div class="card-subtitle">가장 많은 총 금액을 구매한 핵심 파레토 고객군</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="customerChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-fire"></i>판매 수량 상위 10대 제품</div>
+                            <div class="card-subtitle">누적 판매 수량이 가장 높은 핵심 베스트셀러 품목</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="productChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-12 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-circle-exclamation"></i>가장 많이 반품/취소된 제품 Top 10</div>
+                            <div class="card-subtitle">누적 주문 취소 및 환불 수량(절대값)이 높은 제품 현황</div>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height: 380px;">
+                        <canvas id="cancelChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 3: 시간대별 분석 (Time-series) -->
+        <div id="time-analysis" class="tab-view">
+            <div class="dashboard-grid">
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-calendar-day"></i>요일별 매출 합계</div>
+                            <div class="card-subtitle">일주일 중 요일별 매출 비중 (토요일 휴무)</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="dayChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i>시간대별 매출 분포</div>
+                            <div class="card-subtitle">하루 24시간 동안 주문이 집중되는 영업 황금 시간대 파악</div>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="hourChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 탭 4: 키워드 & 상관관계 분석 (Keywords) -->
+        <div id="keyword-analysis" class="tab-view">
+            <div class="dashboard-grid">
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-font"></i>자주 쓰이는 제품명 키워드 Top 20</div>
+                            <div class="card-subtitle">상품 설명(Description) 필드에서 고빈도로 추출된 상위 핵심 단어들</div>
+                        </div>
+                    </div>
+                    <div style="height: 340px; display: flex; flex-direction: column; justify-content: center;">
+                        <div class="keyword-cloud" id="keyword-cloud-container">
+                            <!-- JS를 통해 배지가 동적으로 삽입됩니다 -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-6 card">
+                    <div class="card-header">
+                        <div>
+                            <div class="card-title"><i class="fa-solid fa-table-cells"></i>핵심 수치 변수 간 상관관계 매트릭스</div>
+                            <div class="card-subtitle">수량(Quantity), 단가(UnitPrice), 매출액(TotalAmount)의 선형 상관관계</div>
+                        </div>
+                    </div>
+                    <div>
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>변수명</th>
+                                    <th>수량 (Quantity)</th>
+                                    <th>단가 (UnitPrice)</th>
+                                    <th>매출액 (TotalAmount)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <th>수량 (Quantity)</th>
+                                    <td class="matrix-cell cell-high" title="자기 상관">1.00</td>
+                                    <td class="matrix-cell cell-neutral" title="-0.001로 거의 무상관">-0.00</td>
+                                    <td class="matrix-cell cell-high" title="대량 구매가 매출액에 큰 영향을 미침">0.89</td>
+                                </tr>
+                                <tr>
+                                    <th>단가 (UnitPrice)</th>
+                                    <td class="matrix-cell cell-neutral" title="-0.001로 거의 무상관">-0.00</td>
+                                    <td class="matrix-cell cell-high" title="자기 상관">1.00</td>
+                                    <td class="matrix-cell cell-neg-low" title="고가 제품일수록 총 매출 기여 비중은 낮음">-0.12</td>
+                                </tr>
+                                <tr>
+                                    <th>매출액 (TotalAmount)</th>
+                                    <td class="matrix-cell cell-high" title="강한 상관관계">0.89</td>
+                                    <td class="matrix-cell cell-neg-low" title="약한 음의 상관관계">-0.12</td>
+                                    <td class="matrix-cell cell-high" title="자기 상관">1.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 요약 데이터 세트
+        const dashboardData = {
+            "kpis": {
+                "total_revenue": 10644560.42,
+                "total_orders": 25900,
+                "total_customers": 4372,
+                "total_items": 5660981,
+                "avg_order_value": 513.54,
+                "cancel_rate": 19.97
+            },
+            "monthly_data": {
+                "labels": ["2010-12", "2011-01", "2011-02", "2011-03", "2011-04", "2011-05", "2011-06", "2011-07", "2011-08", "2011-09", "2011-10", "2011-11", "2011-12"],
+                "revenue": [823746.14, 691364.56, 523631.89, 717639.36, 537808.62, 770536.02, 761739.9, 719221.19, 737014.26, 1058590.17, 1154979.3, 1509496.33, 638792.68],
+                "orders": [1629, 1120, 1126, 1531, 1318, 1731, 1576, 1540, 1409, 1896, 2129, 2884, 839]
+            },
+            "country_data": {
+                "labels": ["United Kingdom", "Netherlands", "EIRE", "Germany", "France", "Australia", "Spain", "Switzerland", "Belgium", "Sweden", "Others"],
+                "values": [9003097.96, 285446.34, 283453.96, 228867.14, 209715.11, 138521.31, 61577.11, 57089.9, 41196.34, 38378.33, 297216.92]
+            },
+            "customer_data": {
+                "labels": ["14646", "18102", "17450", "16446", "14911", "12415", "14156", "17511", "16029", "12346"],
+                "values": [280206.02, 259657.30, 194550.79, 168472.50, 143825.06, 124914.53, 117379.63, 91062.38, 81024.84, 77183.60]
+            },
+            "product_data": {
+                "labels": [
+                    "PAPER CRAFT , LITTLE BIRDIE",
+                    "MEDIUM CERAMIC TOP STORAGE JAR",
+                    "WORLD WAR 2 GLIDERS ASSTD DESIGNS",
+                    "JUMBO BAG RED RETROSPOT",
+                    "WHITE HANGING HEART T-LIGHT HOLDER",
+                    "POPCORN HOLDER",
+                    "ASSORTED COLOUR BIRD ORNAMENT",
+                    "PACK OF 72 RETROSPOT CAKE CASES",
+                    "RABBIT NIGHT LIGHT",
+                    "MINI PAINT SET VINTAGE "
+                ],
+                "values": [80995, 78033, 55047, 48478, 37895, 36761, 36461, 36419, 30788, 26633]
+            },
+            "day_data": {
+                "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+                "values": [1779575.04, 2178632.61, 1851147.81, 2203161.24, 1818216.11, 0.0, 813827.61]
+            },
+            "hour_data": {
+                "labels": ["06:00", "07:00", "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"],
+                "values": [4.25, 31059.21, 283868.52, 990267.82, 1446742.70, 1239954.44, 1444245.88, 1265736.30, 1159688.25, 1352972.18, 754006.56, 461603.49, 144813.05, 50665.01, 18932.76]
+            },
+            "cancel_product_data": {
+                "labels": [
+                    "PAPER CRAFT , LITTLE BIRDIE",
+                    "MEDIUM CERAMIC TOP STORAGE JAR",
+                    "printing smudges/thrown away",
+                    "Unsaleable, destroyed.",
+                    "check",
+                    "?",
+                    "ROTATING SILVER ANGELS T-LIGHT HLDR",
+                    "Printing smudges/thrown away",
+                    "Damaged",
+                    "throw away"
+                ],
+                "values": [80995, 74494, 19200, 15644, 13247, 9496, 9376, 9058, 7540, 5368]
+            },
+            "keyword_data": {
+                "labels": ["SET", "PINK", "HEART", "BLUE", "VINTAGE", "RED", "GLASS", "BAG", "CHRISTMAS", "WHITE", "BOX", "DESIGN", "FLOWER", "HOLDER", "LIGHT", "SMALL", "METAL", "GREEN", "LARGE", "NECKLACE"],
+                "values": [390, 327, 239, 232, 220, 205, 173, 171, 157, 149, 141, 129, 119, 118, 115, 115, 112, 107, 106, 106]
+            }
+        };
+
+        // 전역 차트 관리 객체
+        const charts = {};
+
+        // 탭 전환 기능
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            // 탭 활성화 시 차트 업데이트 (사이즈 반응형 조정을 위한 갱신)
+            Object.values(charts).forEach(chart => {
+                chart.resize();
+                chart.update('active');
+            });
+        }
+
+        // 라이트/다크 테마 토글
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('light-theme');
+            
+            const isLight = body.classList.contains('light-theme');
+            document.getElementById('theme-icon').className = isLight ? "fa-solid fa-sun" : "fa-solid fa-moon";
+            document.getElementById('theme-text').innerText = isLight ? "다크 모드" : "라이트 모드";
+
+            // 테마에 맞는 차트 폰트 색상 업데이트 및 갱신
+            const textColor = isLight ? '#475569' : '#94a3b8';
+            const gridColor = isLight ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255, 255, 255, 0.05)';
+
+            Object.values(charts).forEach(chart => {
+                if (chart.options.scales) {
+                    if (chart.options.scales.x) {
+                        chart.options.scales.x.ticks.color = textColor;
+                        chart.options.scales.x.grid.color = gridColor;
+                    }
+                    if (chart.options.scales.y) {
+                        chart.options.scales.y.ticks.color = textColor;
+                        chart.options.scales.y.grid.color = gridColor;
+                    }
+                }
+                if (chart.options.plugins && chart.options.plugins.legend) {
+                    chart.options.plugins.legend.labels.color = textColor;
+                }
+                chart.update();
+            });
+        }
+
+        // 카운터 카운트업 애니메이션
+        function animateCounter(id, target, prefix = "", suffix = "", isInt = false) {
+            const el = document.getElementById(id);
+            let current = 0;
+            const duration = 1200; // ms
+            const start = performance.now();
+
+            function update(time) {
+                const elapsed = time - start;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Ease out cubic
+                const easeProgress = 1 - Math.pow(1 - progress, 3);
+                current = easeProgress * target;
+
+                if (isInt) {
+                    el.innerText = prefix + Math.floor(current).toLocaleString() + suffix;
+                } else {
+                    el.innerText = prefix + current.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    if (isInt) {
+                        el.innerText = prefix + Math.floor(target).toLocaleString() + suffix;
+                    } else {
+                        el.innerText = prefix + target.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) + suffix;
+                    }
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        // 대시보드 초기화 및 차트 빌드
+        window.addEventListener('DOMContentLoaded', () => {
+            // KPI 카운터 애니메이션 시동
+            animateCounter('kpi-revenue', dashboardData.kpis.total_revenue, "$", "", false);
+            animateCounter('kpi-orders', dashboardData.kpis.total_orders, "", "", true);
+            animateCounter('kpi-customers', dashboardData.kpis.total_customers, "", "", true);
+            animateCounter('kpi-aov', dashboardData.kpis.avg_order_value, "$", "", false);
+            animateCounter('kpi-cancel', dashboardData.kpis.cancel_rate, "", "%", false);
+
+            // 차트 기본 글꼴 색상
+            const defaultTextColor = '#94a3b8';
+            const defaultGridColor = 'rgba(255, 255, 255, 0.05)';
+
+            // 1. 월별 매출 및 주문수 추이 차트 (Mixed Chart)
+            const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+            const monthlyRevGradient = monthlyCtx.createLinearGradient(0, 0, 0, 300);
+            monthlyRevGradient.addColorStop(0, 'rgba(99, 102, 241, 0.35)');
+            monthlyRevGradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+            charts.monthly = new Chart(monthlyCtx, {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.monthly_data.labels,
+                    datasets: [
+                        {
+                            label: '매출액 ($)',
+                            data: dashboardData.monthly_data.revenue,
+                            backgroundColor: 'rgba(99, 102, 241, 0.75)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            order: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '주문 건수',
+                            data: dashboardData.monthly_data.orders,
+                            type: 'line',
+                            borderColor: '#10b981',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.35,
+                            pointBackgroundColor: '#10b981',
+                            pointHoverRadius: 7,
+                            order: 1,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: defaultTextColor, font: { family: 'Inter', weight: 500 } }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: 'Outfit', size: 14, weight: 700 },
+                            bodyFont: { family: 'Inter', size: 13 },
+                            cornerRadius: 8
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: defaultTextColor },
+                            grid: { color: defaultGridColor }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            ticks: { 
+                                color: defaultTextColor,
+                                callback: value => '$' + (value >= 1e6 ? (value / 1e6).toFixed(1) + 'M' : value.toLocaleString())
+                            },
+                            grid: { color: defaultGridColor }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            ticks: { color: defaultTextColor },
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+
+            // 2. 국가별 매출 비중 차트 (Doughnut Chart)
+            const countryCtx = document.getElementById('countryChart').getContext('2d');
+            charts.country = new Chart(countryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: dashboardData.country_data.labels,
+                    datasets: [{
+                        data: dashboardData.country_data.values,
+                        backgroundColor: [
+                            '#6366f1', '#10b981', '#8b5cf6', '#06b6d4', '#f59e0b', 
+                            '#ec4899', '#3b82f6', '#14b8a6', '#a855f7', '#f97316', '#64748b'
+                        ],
+                        borderWidth: 2,
+                        borderColor: 'transparent'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right',
+                            labels: {
+                                color: defaultTextColor,
+                                boxWidth: 12,
+                                font: { size: 11, family: 'Inter' }
+                            }
+                        },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = ((value / total) * 100).toFixed(2);
+                                    return ` ${context.label}: $${value.toLocaleString()} (${pct}%)`;
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            // 3. VIP 고객 차트 (Horizontal Bar Chart)
+            const customerCtx = document.getElementById('customerChart').getContext('2d');
+            charts.customer = new Chart(customerCtx, {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.customer_data.labels.map(id => `고객 ${id}`),
+                    datasets: [{
+                        label: '구매 금액 ($)',
+                        data: dashboardData.customer_data.values,
+                        backgroundColor: 'rgba(139, 92, 246, 0.75)',
+                        borderColor: '#8b5cf6',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { 
+                                color: defaultTextColor,
+                                callback: value => '$' + (value / 1000) + 'K'
+                            },
+                            grid: { color: defaultGridColor }
+                        },
+                        y: {
+                            ticks: { color: defaultTextColor },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 4. 인기 제품 차트 (Horizontal Bar Chart)
+            const productCtx = document.getElementById('productChart').getContext('2d');
+            charts.product = new Chart(productCtx, {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.product_data.labels.map(lbl => lbl.length > 25 ? lbl.substring(0, 22) + '...' : lbl),
+                    datasets: [{
+                        label: '판매 수량 (개)',
+                        data: dashboardData.product_data.values,
+                        backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                        borderColor: '#10b981',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            callbacks: {
+                                title: context => dashboardData.product_data.labels[context[0].dataIndex]
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: defaultTextColor },
+                            grid: { color: defaultGridColor }
+                        },
+                        y: {
+                            ticks: { color: defaultTextColor },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            // 5. 취소 주문 최다 제품 차트 (Bar Chart)
+            const cancelCtx = document.getElementById('cancelChart').getContext('2d');
+            charts.cancel = new Chart(cancelCtx, {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.cancel_product_data.labels.map(lbl => lbl.length > 25 ? lbl.substring(0, 22) + '...' : lbl),
+                    datasets: [{
+                        label: '취소 수량 (절대값)',
+                        data: dashboardData.cancel_product_data.values,
+                        backgroundColor: 'rgba(239, 68, 68, 0.75)',
+                        borderColor: '#ef4444',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            callbacks: {
+                                title: context => dashboardData.cancel_product_data.labels[context[0].dataIndex]
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: defaultTextColor, maxRotation: 45, minRotation: 45 },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { color: defaultTextColor },
+                            grid: { color: defaultGridColor }
+                        }
+                    }
+                }
+            });
+
+            // 6. 요일별 매출 차트 (Bar Chart)
+            const dayCtx = document.getElementById('dayChart').getContext('2d');
+            charts.day = new Chart(dayCtx, {
+                type: 'bar',
+                data: {
+                    labels: dashboardData.day_data.labels,
+                    datasets: [{
+                        label: '매출액 ($)',
+                        data: dashboardData.day_data.values,
+                        backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: defaultTextColor },
+                            grid: { display: false }
+                        },
+                        y: {
+                            ticks: { 
+                                color: defaultTextColor,
+                                callback: value => '$' + (value / 1000) + 'K'
+                            },
+                            grid: { color: defaultGridColor }
+                        }
+                    }
+                }
+            });
+
+            // 7. 시간대별 매출 차트 (Line Chart)
+            const hourCtx = document.getElementById('hourChart').getContext('2d');
+            charts.hour = new Chart(hourCtx, {
+                type: 'line',
+                data: {
+                    labels: dashboardData.hour_data.labels,
+                    datasets: [{
+                        label: '매출액 ($)',
+                        data: dashboardData.hour_data.values,
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.15)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#06b6d4',
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            padding: 12,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: { color: defaultTextColor },
+                            grid: { color: defaultGridColor }
+                        },
+                        y: {
+                            ticks: { 
+                                color: defaultTextColor,
+                                callback: value => '$' + (value / 1000) + 'K'
+                            },
+                            grid: { color: defaultGridColor }
+                        }
+                    }
+                }
+            });
+
+            // 키워드 배지 클라우드 생성
+            const cloudContainer = document.getElementById('keyword-cloud-container');
+            const maxVal = Math.max(...dashboardData.keyword_data.values);
+            const minVal = Math.min(...dashboardData.keyword_data.values);
+
+            dashboardData.keyword_data.labels.forEach((word, idx) => {
+                const count = dashboardData.keyword_data.values[idx];
+                // 폰트 크기 계산 (13px ~ 24px)
+                const size = 13 + ((count - minVal) / (maxVal - minVal)) * 11;
+                
+                // 테마에 맞는 색상 바인딩
+                const hue = 220 + (idx * 6); // 다채로운 푸른빛 계열 그라데이션
+                
+                const badge = document.createElement('span');
+                badge.className = 'keyword-badge';
+                badge.style.fontSize = `${size}px`;
+                badge.style.backgroundColor = `hsla(${hue}, 60%, 50%, 0.15)`;
+                badge.style.color = `hsla(${hue}, 70%, 75%, 1)`;
+                badge.innerHTML = `<i class="fa-solid fa-tag" style="font-size: 0.8em; opacity: 0.7;"></i> ${word} <span style="font-size: 0.75em; opacity: 0.6;">(${count})</span>`;
+                
+                cloudContainer.appendChild(badge);
+            });
+        });
+    </script>
+</body>
+</html>
